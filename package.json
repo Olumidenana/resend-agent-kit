@@ -1,0 +1,10 @@
+{
+  "name": "resend-agent-kit",
+  "version": "1.0.0",
+  "description": "Deploy-in-1-click AI Agent template for Resend Inbound with RFC 5322 thread preservation",
+  "type": "module",
+  "main": "api/inbound.js",
+  "keywords": ["resend", "inbound", "ai-agents", "vercel", "email-agent"],
+  "author": "Antigravity",
+  "license": "MIT"
+}

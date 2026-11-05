@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resend Agent Kit — Autonomous Email-as-an-Interface Starter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', -apple-system, sans-serif; background-color: #050505; color: #ededed; }
+    .font-mono { font-family: 'Geist Mono', monospace; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-white selection:text-black antialiased">
+
+  <main class="max-w-4xl mx-auto px-6 py-14 w-full">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center font-bold text-black text-sm">🤖</div>
+      <span class="font-mono text-sm tracking-wider text-neutral-400 uppercase">Resend Inbound Template</span>
+    </div>
+
+    <div class="space-y-3 mb-8">
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white">Resend Agent Kit</h1>
+      <p class="text-neutral-400 text-base sm:text-lg max-w-2xl">
+        Deploy-in-1-click starter kit turning Resend Inbound into an autonomous conversational AI agent with RFC 5322 thread preservation.
+      </p>
+    </div>
+
+    <div class="bg-[#0e0e0e] border border-[#222] rounded-xl p-6 mb-8 space-y-4">
+      <div class="text-xs font-mono uppercase tracking-wider text-neutral-400">Webhook Endpoint</div>
+      <div class="flex items-center gap-3 bg-black border border-[#262626] rounded-lg px-4 py-3 font-mono text-xs text-emerald-400">
+        <span class="text-neutral-500">POST</span>
+        <span id="endpointUrl">https://your-domain.vercel.app/api/inbound</span>
+      </div>
+      <p class="text-xs text-neutral-500">Set this URL as your Webhook in the Resend Dashboard under <strong class="text-neutral-300">Webhooks &gt; Inbound</strong>.</p>
+    </div>
+
+    <div class="bg-[#0e0e0e] border border-[#222] rounded-xl p-6 space-y-4">
+      <div class="text-xs font-mono uppercase tracking-wider text-neutral-400">Simulate Inbound Webhook Event</div>
+      <button onclick="testInbound()" class="bg-white text-black font-semibold px-5 py-2.5 rounded-lg text-xs hover:bg-neutral-200 transition">
+        Simulate Incoming Customer Email
+      </button>
+
+      <div id="simLog" class="hidden mt-4 p-4 rounded-lg bg-black border border-[#222] font-mono text-xs text-neutral-300 space-y-2">
+        <!-- Result -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-[#1a1a1a] py-6 text-center text-xs font-mono text-neutral-500">
+    Designed for Resend Inbound & AI Agents • MIT
+  </footer>
+
+  <script>
+    document.getElementById('endpointUrl').textContent = window.location.origin + '/api/inbound';
+
+    async function testInbound() {
+      const log = document.getElementById('simLog');
+      log.classList.remove('hidden');
+      log.textContent = 'Triggering /api/inbound...';
+
+      const payload = {
+        from: 'guillermo@vercel.com',
+        subject: 'Dedicated IP warmup query',
+        headers: {
+          'message-id': '<msg-1234@vercel.com>',
+          'references': '<msg-000@resend.com>'
+        },
+        text: 'Can you explain the IP warmup process?\n\nBest,\nGuillermo\n\nOn Nov 3, wrote:\n> Welcome to Resend!'
+      };
+
+      try {
+        const res = await fetch('/api/inbound', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        log.innerHTML = `<span class="text-emerald-400">✔ Inbound Hook Executed Successfully!</span>\n\n` +
+          `<span class="text-neutral-500">Clean Prompt:</span> "${data.cleanPrompt}"\n` +
+          `<span class="text-neutral-500">Thread In-Reply-To:</span> ${data.threadHeaders['In-Reply-To']}\n` +
+          `<span class="text-neutral-500">References Chain:</span> ${data.threadHeaders['References']}\n\n` +
+          `<span class="text-neutral-400">Email will thread seamlessly in Gmail/Apple Mail!</span>`;
+      } catch (err) {
+        log.textContent = 'Error: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
